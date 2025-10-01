@@ -215,7 +215,7 @@ class TestTranscribeAudio:
         
         # Mock language detection - need to import from the right place
         mock_detect = mocker.patch('transcribe_audio.core.language_detection.detect_language_with_probe')
-        mock_detect.return_value = 'pt'
+        mock_detect.return_value = ('pt', True)
         
         result = transcribe_audio(
             audio_path=str(sample_audio_path),

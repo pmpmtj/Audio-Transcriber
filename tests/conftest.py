@@ -128,6 +128,8 @@ def basic_cli_args():
         debug = False
         log_dir = "logs"
         enable_file_logging = False
+        dry_run = False
+        stdin = False
     
     return Args()
 

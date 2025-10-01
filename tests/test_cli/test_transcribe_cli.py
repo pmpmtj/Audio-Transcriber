@@ -269,13 +269,14 @@ class TestLogLanguageDetectionInfo:
         mock_logger = MagicMock()
         basic_cli_args.language_routing = True
         basic_cli_args.language = None
-        result = {"_meta": {"routed_language": "pt"}}
+        result = {"_meta": {"routed_language": "pt", "ffmpeg_used": True}}
         
         log_language_detection_info(basic_cli_args, result, mock_logger)
         
         assert mock_logger.info.called
-        call_args = str(mock_logger.info.call_args)
-        assert "pt" in call_args
+        # Check that "pt" appears in any of the log calls
+        all_calls = [str(call) for call in mock_logger.info.call_args_list]
+        assert any("pt" in call for call in all_calls)
     
     def test_logs_detection_failure(self, basic_cli_args):
         """Test logging when detection fails."""

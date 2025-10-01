@@ -132,7 +132,9 @@ class TestDetectLanguageWithProbe:
             use_probe=True
         )
         
-        assert result == 'pt'
+        language, ffmpeg_used = result
+        assert language == 'pt'
+        assert ffmpeg_used == False  # FFmpeg probe failed in this test
         assert mock_openai_client.audio.transcriptions.create.called
     
     def test_detection_without_ffmpeg(self, mocker, sample_audio_path, mock_openai_client):
@@ -154,7 +156,9 @@ class TestDetectLanguageWithProbe:
         )
         
         # Should use full file and detect English
-        assert result == 'en'
+        language, ffmpeg_used = result
+        assert language == 'en'
+        assert ffmpeg_used == False  # FFmpeg not available
     
     def test_detection_with_probe_disabled(self, mocker, sample_audio_path, mock_openai_client):
         """Test language detection when probe is explicitly disabled."""
@@ -172,7 +176,9 @@ class TestDetectLanguageWithProbe:
         )
         
         # Should use full file and detect Spanish
-        assert result == 'es'
+        language, ffmpeg_used = result
+        assert language == 'es'
+        assert ffmpeg_used == False  # Probe disabled
     
     def test_detection_no_keywords_returns_none(self, mocker, sample_audio_path, mock_openai_client):
         """Test that detection returns None when no keywords match."""
@@ -188,7 +194,9 @@ class TestDetectLanguageWithProbe:
             use_probe=False
         )
         
-        assert result is None
+        language, ffmpeg_used = result
+        assert language is None
+        assert ffmpeg_used == False  # Probe disabled
     
     def test_api_error_returns_none(self, mocker, sample_audio_path, mock_openai_client, capsys):
         """Test that API errors return None gracefully."""
@@ -203,7 +211,9 @@ class TestDetectLanguageWithProbe:
             use_probe=False
         )
         
-        assert result is None
+        language, ffmpeg_used = result
+        assert language is None
+        assert ffmpeg_used == False  # Probe disabled
         
         # Should print warning
         captured = capsys.readouterr()
@@ -238,7 +248,9 @@ class TestDetectLanguageWithProbe:
         )
         
         # Should still work using full file
-        assert result == 'fr'
+        language, ffmpeg_used = result
+        assert language == 'fr'
+        assert ffmpeg_used == False  # FFmpeg probe failed
     
     def test_cleanup_probe_file_on_success(self, mocker, sample_audio_path, mock_openai_client):
         """Test that temporary probe file is cleaned up after use."""
@@ -299,7 +311,9 @@ class TestDetectLanguageWithProbe:
         )
         
         # Should return None due to error
-        assert result is None
+        language, ffmpeg_used = result
+        assert language is None
+        assert ffmpeg_used == True  # FFmpeg probe was used before error
         
         # But cleanup should still happen - file and directory should be removed
         assert not probe_path.exists()
