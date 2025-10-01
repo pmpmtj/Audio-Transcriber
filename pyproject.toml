@@ -29,7 +29,7 @@ classifiers = [
 
 # Core dependencies
 dependencies = [
-    "openai>=1.40",
+    "openai>=1.40,<2.0",
 ]
 
 # Optional dependencies
@@ -38,6 +38,9 @@ dev = [
     "pytest>=7.4.0",
     "pytest-mock>=3.11.0",
     "pytest-cov>=4.1.0",
+]
+env = [
+    "python-dotenv>=1.0.0",
 ]
 
 # CLI entry points - allows users to run "transcribe-audio" command after install

@@ -19,6 +19,7 @@ A modular Python package for transcribing audio files using OpenAI's Whisper API
 - Python 3.8+
 - OpenAI API key
 - FFmpeg (optional, for probe sampling)
+- python-dotenv (optional, for .env file support)
 
 ### Quick Install
 
@@ -35,12 +36,24 @@ pip install .
 ```
 
 **Set up your OpenAI API key:**
+
+**Option 1: Environment variable**
 ```bash
 # Windows PowerShell
 $env:OPENAI_API_KEY="your-api-key-here"
 
 # Linux/Mac
 export OPENAI_API_KEY="your-api-key-here"
+```
+
+**Option 2: .env file (recommended for development)**
+```bash
+# Install python-dotenv for .env support
+pip install python-dotenv
+
+# Create .env file
+cp .env.example .env
+# Edit .env and add your API key
 ```
 
 ## Quick Start
@@ -67,6 +80,20 @@ transcribe-audio input.wav --language pt
 **Save to file:**
 ```bash
 transcribe-audio input.m4a --out transcript.json
+```
+
+**Dry run (cost estimation):**
+```bash
+transcribe-audio input.m4a --dry-run --language-routing
+```
+
+**Batch processing from stdin:**
+```bash
+# Process multiple files
+echo -e "file1.mp3\nfile2.m4a\nfile3.wav" | transcribe-audio --stdin --language-routing
+
+# Process all audio files in a directory
+find /path/to/audio -name "*.mp3" | transcribe-audio --stdin --out-dir /path/to/output
 ```
 
 **Alternative CLI usage (if not installed):**
@@ -129,6 +156,8 @@ probe_seconds = TranscriptionConfig.get_default('probe_seconds')
 | `--language-routing` | Enable keyword-based routing | `False` |
 | `--out` | Output JSON file path | Print to stdout |
 | `--temperature` | Decoding temperature (0.0-1.0) | `0.0` |
+| `--dry-run` | Show what would be done without API calls | `False` |
+| `--stdin` | Read file paths from stdin for batch processing | `False` |
 
 ## Supported Languages
 

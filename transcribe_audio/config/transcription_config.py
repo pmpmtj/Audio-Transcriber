@@ -230,4 +230,103 @@ class TranscriptionConfig:
         if not extension.startswith('.'):
             extension = f'.{extension}'
         return extension.lower() in cls.ALLOWED_EXTENSIONS
+    
+    @classmethod
+    def get_probe_model(cls):
+        """Get the model used for language detection probe."""
+        return cls.get_model('detect')
+    
+    @classmethod
+    def get_main_model(cls):
+        """Get the model used for main transcription."""
+        return cls.get_model('main')
+    
+    @classmethod
+    def get_log_dir(cls):
+        """Get the default log directory."""
+        return cls.LOGGING_SETTINGS['log_dir']
+    
+    @classmethod
+    def get_client(cls, api_key=None, timeout=None, max_retries=None):
+        """
+        Create a configured OpenAI client instance.
+        
+        Args:
+            api_key: Optional API key (defaults to OPENAI_API_KEY env var)
+            timeout: Optional timeout override (defaults to config)
+            max_retries: Optional retry count override (defaults to config)
+            
+        Returns:
+            Configured OpenAI client instance
+            
+        Raises:
+            ImportError: If OpenAI SDK is not installed
+            ValueError: If API key is not provided and not in environment
+        """
+        try:
+            from openai import OpenAI
+        except ImportError as e:
+            raise ImportError(f"Failed to import OpenAI SDK. Install with: pip install openai\nDetail: {e}")
+        
+        # Get API key
+        if api_key is None:
+            import os
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY environment variable is not set")
+        
+        # Get settings from config (only client-relevant settings)
+        client_settings = {
+            'timeout': timeout if timeout is not None else cls.API_SETTINGS['timeout'],
+            'max_retries': max_retries if max_retries is not None else cls.API_SETTINGS['max_retries']
+        }
+        
+        # Create client with configuration
+        return OpenAI(api_key=api_key, **client_settings)
+    
+    @classmethod
+    def load_env_file(cls, env_path=None):
+        """
+        Load environment variables from .env file if it exists.
+        
+        This is a convenience function that tries to load a .env file
+        without requiring python-dotenv as a hard dependency.
+        
+        Args:
+            env_path: Optional path to .env file (defaults to .env in CWD)
+            
+        Returns:
+            Boolean indicating if .env file was loaded successfully
+        """
+        import os
+        from pathlib import Path
+        
+        if env_path is None:
+            env_path = Path.cwd() / ".env"
+        else:
+            env_path = Path(env_path)
+        
+        if not env_path.exists():
+            return False
+        
+        try:
+            # Try to use python-dotenv if available
+            import dotenv
+            dotenv.load_dotenv(env_path)
+            return True
+        except ImportError:
+            # Fallback: simple .env parsing without external dependencies
+            try:
+                with open(env_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            key = key.strip()
+                            value = value.strip().strip('"').strip("'")
+                            if key and value:
+                                os.environ[key] = value
+                return True
+            except Exception:
+                return False
 

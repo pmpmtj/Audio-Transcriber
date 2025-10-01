@@ -16,6 +16,38 @@ from ..logging_utils import get_logger
 logger = get_logger('transcription')
 
 
+def validate_audio_file(audio_path: str) -> Path:
+    """
+    Validate audio file path and return resolved Path object.
+    
+    Args:
+        audio_path: Path to the audio file
+        
+    Returns:
+        Resolved Path object
+        
+    Raises:
+        FileNotFoundError: If audio file doesn't exist
+        ValueError: If file type is not supported
+    """
+    logger.debug(f"Validating audio path: {audio_path}")
+    audio_path_obj = Path(audio_path).expanduser().resolve()
+    logger.debug(f"Resolved path: {audio_path_obj}")
+    
+    if not audio_path_obj.exists() or not audio_path_obj.is_file():
+        logger.error(f"Audio file not found: {audio_path_obj}")
+        raise FileNotFoundError(f"Audio file not found: {audio_path_obj}")
+    
+    logger.debug(f"File exists, checking extension: {audio_path_obj.suffix}")
+    if not TranscriptionConfig.is_extension_allowed(audio_path_obj.suffix):
+        allowed = ', '.join(sorted(TranscriptionConfig.ALLOWED_EXTENSIONS))
+        logger.error(f"Unsupported file type: {audio_path_obj.suffix}")
+        raise ValueError(f"Unsupported file type '{audio_path_obj.suffix}'. Use: {allowed}")
+    
+    logger.info(f"Audio file validated: {audio_path_obj.name} ({audio_path_obj.suffix})")
+    return audio_path_obj
+
+
 def transcribe_full(client, audio_path: Path, model: str, 
                    language: Optional[str], temperature: float) -> Dict:
     """
@@ -105,17 +137,9 @@ def transcribe_audio(audio_path: str,
                 f"probe_seconds={probe_seconds}, use_probe={use_probe}, language_routing={language_routing}, "
                 f"temperature={temperature}")
     
-    # Import OpenAI here to allow CLI help without dependencies
-    logger.debug("Importing OpenAI SDK...")
-    try:
-        from openai import OpenAI
-    except Exception as e:
-        logger.error(f"Failed to import OpenAI SDK: {e}")
-        raise ImportError(f"Failed to import OpenAI SDK. Install with: pip install openai\nDetail: {e}")
-    
     # Get defaults from config
-    model = model or TranscriptionConfig.get_model('main')
-    detect_model = detect_model or TranscriptionConfig.get_model('detect')
+    model = model or TranscriptionConfig.get_main_model()
+    detect_model = detect_model or TranscriptionConfig.get_probe_model()
     temperature = temperature if temperature is not None else TranscriptionConfig.get_default('temperature')
     probe_seconds = probe_seconds if probe_seconds is not None else TranscriptionConfig.get_default('probe_seconds')
     language_routing = language_routing if language_routing is not None else TranscriptionConfig.get_default('language_routing')
@@ -126,37 +150,28 @@ def transcribe_audio(audio_path: str,
     # Initialize client if not provided
     if client is None:
         logger.debug("Creating new OpenAI client")
-        client = OpenAI()
+        try:
+            client = TranscriptionConfig.get_client()
+        except (ImportError, ValueError) as e:
+            logger.error(f"Failed to create OpenAI client: {e}")
+            raise
     else:
         logger.debug("Using provided OpenAI client")
     
-    # Validate audio path
-    logger.debug(f"Validating audio path: {audio_path}")
-    audio_path_obj = Path(audio_path).expanduser().resolve()
-    logger.debug(f"Resolved path: {audio_path_obj}")
-    
-    if not audio_path_obj.exists() or not audio_path_obj.is_file():
-        logger.error(f"Audio file not found: {audio_path_obj}")
-        raise FileNotFoundError(f"Audio file not found: {audio_path_obj}")
-    
-    logger.debug(f"File exists, checking extension: {audio_path_obj.suffix}")
-    if not TranscriptionConfig.is_extension_allowed(audio_path_obj.suffix):
-        allowed = ', '.join(sorted(TranscriptionConfig.ALLOWED_EXTENSIONS))
-        logger.error(f"Unsupported file type: {audio_path_obj.suffix}")
-        raise ValueError(f"Unsupported file type '{audio_path_obj.suffix}'. Use: {allowed}")
-    
-    logger.info(f"Audio file validated: {audio_path_obj.name} ({audio_path_obj.suffix})")
+    # Validate audio file
+    audio_path_obj = validate_audio_file(audio_path)
     
     # Step 1: Language selection
     selected_lang = language
     logger.debug(f"Language selection phase: forced_language={language}, language_routing={language_routing}")
     
     # Only do language routing if explicitly enabled and no language forced
+    ffmpeg_used = False
     if not selected_lang and language_routing:
         logger.info("Language routing enabled, attempting detection...")
         from .language_detection import detect_language_with_probe
         
-        detected = detect_language_with_probe(
+        detected, ffmpeg_used = detect_language_with_probe(
             client=client,
             audio_path=audio_path_obj,
             detect_model=detect_model,
@@ -165,6 +180,10 @@ def transcribe_audio(audio_path: str,
         )
         selected_lang = detected
         logger.info(f"Language detection result: {selected_lang or 'None (will use Whisper auto-detect)'}")
+        if ffmpeg_used:
+            logger.info("FFmpeg probe slice used for fast language detection")
+        else:
+            logger.info("FFmpeg not available or failed; used full file for language detection")
     else:
         logger.debug("Skipping language detection (either forced language or routing disabled)")
     
@@ -189,6 +208,7 @@ def transcribe_audio(audio_path: str,
         "language_routing_enabled": language_routing,
         "routed_language": selected_lang if selected_lang else None,
         "probe_seconds": None if not use_probe else probe_seconds,
+        "ffmpeg_used": ffmpeg_used,
     })
     
     logger.info("Transcription completed successfully")

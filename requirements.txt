@@ -1,5 +1,5 @@
 # Core dependencies
-openai>=1.40
+openai>=1.40,<2.0
 
 # Testing dependencies
 pytest>=7.4.0

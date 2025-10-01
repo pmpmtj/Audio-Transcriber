@@ -112,7 +112,7 @@ def slice_with_ffmpeg(src: Path, seconds: int) -> Path:
 
 
 def detect_language_with_probe(client, audio_path: Path, detect_model: str, 
-                             probe_seconds: int, use_probe: bool) -> Optional[str]:
+                             probe_seconds: int, use_probe: bool) -> tuple[Optional[str], bool]:
     """
     Try to detect language quickly. Prefer ffmpeg short slice; if unavailable/fails,
     fallback to using the full file with the detect_model.
@@ -125,13 +125,16 @@ def detect_language_with_probe(client, audio_path: Path, detect_model: str,
         use_probe: Whether to use ffmpeg probe (if available)
         
     Returns:
-        ISO-639-1 code like 'en' or 'pt', or None if detection fails.
+        Tuple of (language_code, ffmpeg_used) where:
+        - language_code: ISO-639-1 code like 'en' or 'pt', or None if detection fails
+        - ffmpeg_used: Boolean indicating if FFmpeg probe slice was successfully used
     """
     logger.info(f"Starting language detection with probe: file={audio_path.name}, model={detect_model}, "
                f"probe_seconds={probe_seconds}, use_probe={use_probe}")
     
     file_for_probe: Path = audio_path
     cleanup_path: Optional[Path] = None
+    ffmpeg_used: bool = False
 
     if use_probe and have_ffmpeg():
         logger.debug("Attempting to create ffmpeg probe slice...")
@@ -139,6 +142,7 @@ def detect_language_with_probe(client, audio_path: Path, detect_model: str,
         if probe.exists():
             file_for_probe = probe
             cleanup_path = probe
+            ffmpeg_used = True
             logger.info(f"Using probe slice for detection: {probe}")
         else:
             # ffmpeg failed; we'll fallback to full file
@@ -149,13 +153,13 @@ def detect_language_with_probe(client, audio_path: Path, detect_model: str,
         else:
             logger.debug("FFmpeg not available, using full audio file for detection")
 
-    try:
-        from openai import OpenAI
-    except Exception as e:
-        logger.error(f"Failed to import OpenAI SDK: {e}")
-        raise ImportError(f"Failed to import OpenAI SDK. Install with: pip install openai\nDetail: {e}")
-
-    client = client or OpenAI()
+    # Use provided client or create new one
+    if client is None:
+        try:
+            client = TranscriptionConfig.get_client()
+        except (ImportError, ValueError) as e:
+            logger.error(f"Failed to create OpenAI client: {e}")
+            raise
     try:
         # Get API settings from config
         response_format = TranscriptionConfig.API_SETTINGS['response_format_probe']
@@ -185,11 +189,11 @@ def detect_language_with_probe(client, audio_path: Path, detect_model: str,
         else:
             logger.info("Language detection returned None (no strong match)")
         
-        return lang
+        return lang, ffmpeg_used
     except Exception as e:
         logger.error(f"Language detection encountered an error: {e}", exc_info=True)
         print(f"WARNING: language detection fallback encountered an error: {e}", file=sys.stderr)
-        return None
+        return None, ffmpeg_used
     finally:
         if cleanup_path and cleanup_path.exists():
             logger.debug(f"Cleaning up temporary probe file: {cleanup_path}")
