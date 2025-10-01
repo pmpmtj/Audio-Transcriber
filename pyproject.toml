@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "audio-transcriber"
+version = "1.0.0"
+description = "A modular Python package for transcribing audio files using OpenAI's Whisper API with optional language detection"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+keywords = ["audio", "transcription", "whisper", "openai", "speech-to-text", "language-detection"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# Core dependencies
+dependencies = [
+    "openai>=1.40",
+]
+
+# Optional dependencies
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-mock>=3.11.0",
+    "pytest-cov>=4.1.0",
+]
+
+# CLI entry points - allows users to run "transcribe-audio" command after install
+[project.scripts]
+transcribe-audio = "transcribe_audio.cli.transcribe_cli:main"
+
+# Project URLs
+[project.urls]
+Homepage = "https://github.com/yourusername/audio-transcriber"
+Documentation = "https://github.com/yourusername/audio-transcriber#readme"
+Repository = "https://github.com/yourusername/audio-transcriber.git"
+Issues = "https://github.com/yourusername/audio-transcriber/issues"
+
+# Hatchling build configuration
+[tool.hatch.build.targets.wheel]
+packages = ["transcribe_audio"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/transcribe_audio",
+    "/tests",
+    "/examples",
+    "/README.md",
+    "/LICENSE",
+    "/requirements.txt",
+    "/pytest.ini",
+]
+exclude = [
+    "*.pyc",
+    "__pycache__",
+    "*.log",
+    ".coverage",
+    "htmlcov",
+]
+
+# Pytest configuration (can also keep pytest.ini)
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--strict-markers",
+    "--tb=short",
+]
+

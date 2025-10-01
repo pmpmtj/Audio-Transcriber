@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 
 # Import the main transcription function
-from src.core import transcribe_audio
+from transcribe_audio import transcribe_audio
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
         return
     
     # Example audio file path (adjust as needed)
-    audio_file = Path(__file__).parent / "src" / "input.m4a"
+    audio_file = Path(__file__).parent / "input.m4a"
     
     if not audio_file.exists():
         print(f"Audio file not found: {audio_file}")

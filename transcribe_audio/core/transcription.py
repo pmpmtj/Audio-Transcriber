@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from ..config import TranscriptionConfig
-from ...logging_utils import get_logger
+from ..logging_utils import get_logger
 
 # Initialize logger for this module
 logger = get_logger('transcription')

@@ -42,7 +42,7 @@ else:
 
 from ..config import TranscriptionConfig
 from ..core import transcribe_audio
-from ...logging_utils import get_logger, set_console_level, disable_file_logging
+from ..logging_utils import get_logger, set_console_level, disable_file_logging
 
 
 def die(msg: str, code: int) -> "NoReturn":  # type: ignore[name-defined]

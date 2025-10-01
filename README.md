@@ -8,7 +8,7 @@ A modular Python package for transcribing audio files using OpenAI's Whisper API
 - 🌍 **Language Detection**: Keyword-based language routing with ffmpeg probe sampling
 - ⚡ **Fast Processing**: Configurable probe sampling for quick language detection
 - 🔧 **Modular Design**: Clean separation between business logic and CLI interface
-- 📦 **Plug-and-Play**: Easy integration into other applications and tools
+- 📦 **Installable Package**: Easy installation and distribution via pip
 - ⚙️ **Configurable**: Centralized configuration management
 - 🎯 **Multiple Interfaces**: CLI, library, and extensible for web APIs
 
@@ -20,51 +20,65 @@ A modular Python package for transcribing audio files using OpenAI's Whisper API
 - OpenAI API key
 - FFmpeg (optional, for probe sampling)
 
-### Setup
+### Quick Install
 
-1. **Clone or download the package**
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. **Set up your OpenAI API key:**
-   ```bash
-   # Windows PowerShell
-   $env:OPENAI_API_KEY="your-api-key-here"
-   
-   # Linux/Mac
-   export OPENAI_API_KEY="your-api-key-here"
-   ```
+**Install from source (development):**
+```bash
+git clone <repository-url>
+cd audio-transcriber
+pip install -e .
+```
+
+**Install for production:**
+```bash
+pip install .
+```
+
+**Set up your OpenAI API key:**
+```bash
+# Windows PowerShell
+$env:OPENAI_API_KEY="your-api-key-here"
+
+# Linux/Mac
+export OPENAI_API_KEY="your-api-key-here"
+```
 
 ## Quick Start
 
 ### CLI Usage
 
+After installation, use the `transcribe-audio` command:
+
 **Basic transcription:**
 ```bash
-python -m transcribe_audio.cli.transcribe_cli input.m4a
+transcribe-audio input.m4a
 ```
 
 **With language routing (recommended):**
 ```bash
-python -m transcribe_audio.cli.transcribe_cli input.mp3 --language-routing
+transcribe-audio input.mp3 --language-routing
 ```
 
 **Force specific language:**
 ```bash
-python -m transcribe_audio.cli.transcribe_cli input.wav --language pt
+transcribe-audio input.wav --language pt
 ```
 
 **Save to file:**
 ```bash
-python -m transcribe_audio.cli.transcribe_cli input.m4a --out transcript.json
+transcribe-audio input.m4a --out transcript.json
+```
+
+**Alternative CLI usage (if not installed):**
+```bash
+python -m transcribe_audio.cli.transcribe_cli input.m4a
 ```
 
 ### Library Usage
 
 **Basic usage:**
 ```python
-from transcribe_audio.core import transcribe_audio
+from transcribe_audio import transcribe_audio
 
 # Simple transcription
 result = transcribe_audio("audio.mp3")
@@ -73,7 +87,7 @@ print(result['text'])
 
 **Advanced usage with options:**
 ```python
-from transcribe_audio.core import transcribe_audio
+from transcribe_audio import transcribe_audio
 
 result = transcribe_audio(
     audio_path="audio.m4a",
@@ -87,6 +101,19 @@ result = transcribe_audio(
 text = result['text']
 metadata = result['_meta']
 print(f"Detected language: {metadata['routed_language']}")
+```
+
+**Configuration access:**
+```python
+from transcribe_audio import TranscriptionConfig
+
+# Get model settings
+main_model = TranscriptionConfig.get_model('main')
+detect_model = TranscriptionConfig.get_model('detect')
+
+# Get defaults
+temperature = TranscriptionConfig.get_default('temperature')
+probe_seconds = TranscriptionConfig.get_default('probe_seconds')
 ```
 
 ## CLI Options
@@ -120,10 +147,10 @@ The package supports keyword-based detection for:
 
 ## Configuration
 
-All configuration is centralized in `src/config/transcription_config.py`:
+All configuration is centralized in `transcribe_audio/config/transcription_config.py`:
 
 ```python
-from transcribe_audio.config import TranscriptionConfig
+from transcribe_audio import TranscriptionConfig
 
 # Access models
 main_model = TranscriptionConfig.get_model('main')
@@ -147,7 +174,7 @@ Edit the `LANGUAGE_KEYWORDS` dictionary in `transcription_config.py` to add or m
 
 ```python
 from flask import Flask, request, jsonify
-from transcribe_audio.core import transcribe_audio
+from transcribe_audio import transcribe_audio
 
 app = Flask(__name__)
 
@@ -176,8 +203,9 @@ def transcribe():
 
 ```python
 import os
+import json
 from pathlib import Path
-from transcribe_audio.core import transcribe_audio
+from transcribe_audio import transcribe_audio
 
 def batch_transcribe(input_dir, output_dir):
     input_path = Path(input_dir)
@@ -221,28 +249,40 @@ The package uses structured exit codes:
 ### Project Structure
 
 ```
-transcribe_audio/
-├── src/
-│   ├── core/                    # Business logic
-│   │   ├── transcription.py     # Main transcription function
+audio-transcriber/
+├── pyproject.toml              # Package configuration
+├── README.md                   # This file
+├── requirements.txt            # Dependencies
+├── transcribe_audio/           # Main package
+│   ├── __init__.py            # Package exports
+│   ├── cli/                   # CLI interface
+│   │   └── transcribe_cli.py  # CLI implementation
+│   ├── config/                # Configuration
+│   │   └── transcription_config.py
+│   ├── core/                  # Business logic
+│   │   ├── transcription.py   # Main transcription function
 │   │   └── language_detection.py # Language detection
-│   ├── cli/                     # CLI interface
-│   │   └── transcribe_cli.py    # CLI implementation
-│   └── config/                  # Configuration
-│       └── transcription_config.py
-├── example_usage.py             # Usage examples
-└── requirements.txt
+│   └── logging_utils/         # Logging configuration
+├── examples/                   # Usage examples
+│   ├── example_usage.py       # Sample code
+│   └── input.m4a             # Test audio file
+└── tests/                     # Test suite
 ```
 
 ### Running Tests
 
 ```bash
+# Install in development mode
+pip install -e .
+
+# Run tests
+pytest
+
 # Test imports
-python -c "from transcribe_audio.core import transcribe_audio; print('Core OK')"
-python -c "from transcribe_audio.cli import main; print('CLI OK')"
+python -c "from transcribe_audio import transcribe_audio; print('Package OK')"
 
 # Test CLI help
-python -m transcribe_audio.cli.transcribe_cli --help
+transcribe-audio --help
 ```
 
 ### Extending the Package
@@ -250,13 +290,27 @@ python -m transcribe_audio.cli.transcribe_cli --help
 **Adding new interfaces:**
 ```python
 # Create your own interface
-from transcribe_audio.core import transcribe_audio
+from transcribe_audio import transcribe_audio
 
 def my_custom_interface(audio_path, **options):
     # Your custom logic here
     result = transcribe_audio(audio_path, **options)
     # Your custom processing here
     return result
+```
+
+**Development setup:**
+```bash
+# Clone and install in development mode
+git clone <repository-url>
+cd audio-transcriber
+pip install -e .
+
+# Run tests
+pytest
+
+# Build package
+python -m build
 ```
 
 ## Troubleshooting

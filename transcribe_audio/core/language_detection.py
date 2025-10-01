@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Optional
 
 from ..config import TranscriptionConfig
-from ...logging_utils import get_logger
+from ..logging_utils import get_logger
 
 # Initialize logger for this module
 logger = get_logger('language_detection')
