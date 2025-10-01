@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 
 from ..config import TranscriptionConfig
 from ..logging_utils import get_logger
@@ -111,14 +111,14 @@ def slice_with_ffmpeg(src: Path, seconds: int) -> Path:
     return out
 
 
-def detect_language_with_probe(client, audio_path: Path, detect_model: str, 
+def detect_language_with_probe(client: Any, audio_path: Path, detect_model: str, 
                              probe_seconds: int, use_probe: bool) -> tuple[Optional[str], bool]:
     """
     Try to detect language quickly. Prefer ffmpeg short slice; if unavailable/fails,
     fallback to using the full file with the detect_model.
     
     Args:
-        client: OpenAI client instance
+        client: OpenAI client instance (required, cannot be None)
         audio_path: Path to the audio file
         detect_model: Model to use for language detection
         probe_seconds: Duration to sample for detection
@@ -153,13 +153,9 @@ def detect_language_with_probe(client, audio_path: Path, detect_model: str,
         else:
             logger.debug("FFmpeg not available, using full audio file for detection")
 
-    # Use provided client or create new one
+    # Client must be provided - no fallback creation
     if client is None:
-        try:
-            client = TranscriptionConfig.get_client()
-        except (ImportError, ValueError) as e:
-            logger.error(f"Failed to create OpenAI client: {e}")
-            raise
+        raise ValueError("Client parameter is required and cannot be None")
     try:
         # Get API settings from config
         response_format = TranscriptionConfig.API_SETTINGS['response_format_probe']

@@ -318,9 +318,9 @@ def log_language_detection_info(args, result, logger) -> None:
         
         # Surface FFmpeg status to user
         if ffmpeg_used:
-            logger.info("OK FFmpeg probe slice used for fast language detection")
+            logger.info("FFmpeg probe slice used for fast language detection")
         else:
-            logger.info("INFO FFmpeg not available or failed; used full file for language detection")
+            logger.info("FFmpeg not available; using full file for language detection")
     elif not args.language:
         logger.info("Language routing disabled; Whisper will auto-detect language.")
 

@@ -289,7 +289,7 @@ class TestLogLanguageDetectionInfo:
         
         assert mock_logger.info.called
         call_args = str(mock_logger.info.call_args)
-        assert "failed" in call_args.lower() or "auto-detect" in call_args.lower()
+        assert "not available" in call_args.lower() or "auto-detect" in call_args.lower()
     
     def test_logs_routing_disabled(self, basic_cli_args):
         """Test logging when routing is disabled."""

@@ -128,6 +128,7 @@ result = transcribe_audio(
 text = result['text']
 metadata = result['_meta']
 print(f"Detected language: {metadata['routed_language']}")
+print(f"FFmpeg probe used: {metadata['ffmpeg_used']}")
 ```
 
 **Configuration access:**
@@ -354,7 +355,7 @@ ERROR: OPENAI_API_KEY is not set. Set it and retry.
 
 **2. FFmpeg not found:**
 ```
-WARNING: ffmpeg failed to create probe slice
+FFmpeg not available; using full file for language detection
 ```
 **Solution:** Install FFmpeg or use `--no-probe` flag to disable probe sampling.
 
@@ -376,6 +377,7 @@ ERROR: Failed to import OpenAI SDK
 - Adjust `--probe-seconds` based on your audio length (shorter for quick detection)
 - Use `gpt-4o-mini-transcribe` for detection to save costs
 - Set `--temperature 0.0` for consistent, deterministic results
+- Install FFmpeg for faster language detection (you'll see clear status messages)
 
 ## License
 

@@ -183,7 +183,7 @@ def transcribe_audio(audio_path: str,
         if ffmpeg_used:
             logger.info("FFmpeg probe slice used for fast language detection")
         else:
-            logger.info("FFmpeg not available or failed; used full file for language detection")
+            logger.info("FFmpeg not available; using full file for language detection")
     else:
         logger.debug("Skipping language detection (either forced language or routing disabled)")
     
