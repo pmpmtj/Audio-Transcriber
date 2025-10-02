@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "audio-transcriber"
@@ -45,7 +45,7 @@ env = [
 
 # CLI entry points - allows users to run "transcribe-audio" command after install
 [project.scripts]
-transcribe-audio = "src.transcribe_audio.cli.transcribe_cli:main"
+transcribe-audio = "transcribe_audio.cli.transcribe_cli:main"
 
 # Project URLs
 [project.urls]
@@ -54,30 +54,13 @@ Documentation = "https://github.com/yourusername/audio-transcriber#readme"
 Repository = "https://github.com/yourusername/audio-transcriber.git"
 Issues = "https://github.com/yourusername/audio-transcriber/issues"
 
-# Hatchling build configuration
-[tool.hatch.build.targets.wheel]
-packages = ["src.transcribe_audio"]
+# Setuptools configuration
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[tool.hatch.build.sources]
-"src" = ""
+[tool.setuptools.package-dir]
+"" = "src"
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "/src",
-    "/tests",
-    "/examples",
-    "/README.md",
-    "/LICENSE",
-    "/requirements.txt",
-    "/pytest.ini",
-]
-exclude = [
-    "*.pyc",
-    "__pycache__",
-    "*.log",
-    ".coverage",
-    "htmlcov",
-]
 
 # Pytest configuration (can also keep pytest.ini)
 [tool.pytest.ini_options]
