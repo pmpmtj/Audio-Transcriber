@@ -5,7 +5,7 @@ Tests pure text-based language detection and helper functions.
 """
 
 import pytest
-from transcribe_audio.core.language_detection import (
+from src.transcribe_audio.core.language_detection import (
     detect_language_from_text,
     have_ffmpeg
 )

@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 
 # Import the main transcription function and validation helper
-from transcribe_audio import transcribe_audio, validate_audio_file
+from src.transcribe_audio import transcribe_audio, validate_audio_file
 
 
 def basic_example():

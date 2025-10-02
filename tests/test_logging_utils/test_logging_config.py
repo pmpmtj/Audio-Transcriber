@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 import pytest
-from transcribe_audio.logging_utils.logging_config import (
+from src.transcribe_audio.logging_utils.logging_config import (
     get_logger,
     set_console_level,
     disable_file_logging,

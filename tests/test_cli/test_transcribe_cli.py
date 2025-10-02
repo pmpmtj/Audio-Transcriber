@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, Mock, patch
 from argparse import Namespace
 
 import pytest
-from transcribe_audio.cli.transcribe_cli import (
+from src.transcribe_audio.cli.transcribe_cli import (
     die,
     parse_args,
     ensure_api_key,
@@ -140,7 +140,7 @@ class TestEnsureApiKey:
     
     def test_api_key_missing_raises_error(self, no_api_key, mocker):
         """Test that missing API key calls die()."""
-        mock_die = mocker.patch('transcribe_audio.cli.transcribe_cli.die')
+        mock_die = mocker.patch('src.transcribe_audio.cli.transcribe_cli.die')
         
         ensure_api_key()
         
@@ -159,7 +159,7 @@ class TestSetupLoggingFromArgs:
     def test_setup_with_debug_flag(self, mocker, basic_cli_args):
         """Test logging setup with debug flag enabled."""
         basic_cli_args.debug = True
-        mock_get_logger = mocker.patch('transcribe_audio.cli.transcribe_cli.get_logger')
+        mock_get_logger = mocker.patch('src.transcribe_audio.cli.transcribe_cli.get_logger')
         mock_logger = MagicMock()
         mock_get_logger.return_value = mock_logger
         
@@ -172,7 +172,7 @@ class TestSetupLoggingFromArgs:
     def test_setup_without_debug_flag(self, mocker, basic_cli_args):
         """Test logging setup without debug flag."""
         basic_cli_args.debug = False
-        mock_get_logger = mocker.patch('transcribe_audio.cli.transcribe_cli.get_logger')
+        mock_get_logger = mocker.patch('src.transcribe_audio.cli.transcribe_cli.get_logger')
         mock_logger = MagicMock()
         mock_get_logger.return_value = mock_logger
         
@@ -186,10 +186,10 @@ class TestSetupLoggingFromArgs:
         """Test logging setup with file logging enabled."""
         basic_cli_args.enable_file_logging = True
         basic_cli_args.log_dir = '/custom/logs'
-        mock_get_logger = mocker.patch('transcribe_audio.cli.transcribe_cli.get_logger')
+        mock_get_logger = mocker.patch('src.transcribe_audio.cli.transcribe_cli.get_logger')
         mock_logger = MagicMock()
         mock_get_logger.return_value = mock_logger
-        mock_disable = mocker.patch('transcribe_audio.cli.transcribe_cli.disable_file_logging')
+        mock_disable = mocker.patch('src.transcribe_audio.cli.transcribe_cli.disable_file_logging')
         
         logger = setup_logging_from_args(basic_cli_args)
         
@@ -203,10 +203,10 @@ class TestSetupLoggingFromArgs:
     def test_file_logging_disabled(self, mocker, basic_cli_args):
         """Test logging setup with file logging disabled."""
         basic_cli_args.enable_file_logging = False
-        mock_get_logger = mocker.patch('transcribe_audio.cli.transcribe_cli.get_logger')
+        mock_get_logger = mocker.patch('src.transcribe_audio.cli.transcribe_cli.get_logger')
         mock_logger = MagicMock()
         mock_get_logger.return_value = mock_logger
-        mock_disable = mocker.patch('transcribe_audio.cli.transcribe_cli.disable_file_logging')
+        mock_disable = mocker.patch('src.transcribe_audio.cli.transcribe_cli.disable_file_logging')
         
         logger = setup_logging_from_args(basic_cli_args)
         
@@ -226,7 +226,7 @@ class TestPerformTranscription:
         """Test successful transcription."""
         mock_logger = MagicMock()
         mock_result = {"text": "Test transcription", "_meta": {}}
-        mock_transcribe = mocker.patch('transcribe_audio.cli.transcribe_cli.transcribe_audio')
+        mock_transcribe = mocker.patch('src.transcribe_audio.cli.transcribe_cli.transcribe_audio')
         mock_transcribe.return_value = mock_result
         
         result = perform_transcription(basic_cli_args, mock_logger)
@@ -239,7 +239,7 @@ class TestPerformTranscription:
     def test_passes_all_arguments(self, mocker, basic_cli_args):
         """Test that all arguments are passed to transcribe_audio."""
         mock_logger = MagicMock()
-        mock_transcribe = mocker.patch('transcribe_audio.cli.transcribe_cli.transcribe_audio')
+        mock_transcribe = mocker.patch('src.transcribe_audio.cli.transcribe_cli.transcribe_audio')
         mock_transcribe.return_value = {"text": "Test"}
         
         basic_cli_args.language = 'pt'

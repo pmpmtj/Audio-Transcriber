@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from transcribe_audio.cli.transcribe_cli import create_dry_run_result
+from src.transcribe_audio.cli.transcribe_cli import create_dry_run_result
 
 
 class TestDryRun:
@@ -65,7 +65,7 @@ class TestDryRun:
         
         mock_logger = MagicMock()
         
-        with patch('transcribe_audio.core.language_detection.have_ffmpeg', return_value=False):
+        with patch('src.transcribe_audio.core.language_detection.have_ffmpeg', return_value=False):
             result = create_dry_run_result(basic_cli_args, mock_logger)
         
         assert result['_meta']['ffmpeg_available'] is False

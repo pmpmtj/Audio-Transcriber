@@ -4,7 +4,7 @@ Unit tests for configuration helper methods.
 
 import pytest
 from unittest.mock import patch
-from transcribe_audio.config import TranscriptionConfig
+from src.transcribe_audio.config import TranscriptionConfig
 
 
 class TestConfigHelpers:

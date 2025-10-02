@@ -4,15 +4,15 @@ CLI: Transcribe an audio file (MP3/M4A/WAV) with OpenAI and output JSON,
      with optional language routing (probe first N seconds, then transcribe).
 
 Usage:
-  python -m transcribe_audio.cli.transcribe_cli input.m4a
-  python -m transcribe_audio.cli.transcribe_cli input.mp3 --out transcript.json
-  python -m transcribe_audio.cli.transcribe_cli input.wav --probe-seconds 15
-  python -m transcribe_audio.cli.transcribe_cli input.m4a --no-probe                     # skip ffmpeg probe
-  python -m transcribe_audio.cli.transcribe_cli input.mp3 --language pt                  # bypass auto, force Portuguese
-  python -m transcribe_audio.cli.transcribe_cli input.mp3 --language-routing             # enable keyword-based language routing
-  python -m transcribe_audio.cli.transcribe_cli input.mp3 --model gpt-4o-mini-transcribe
-  python -m transcribe_audio.cli.transcribe_cli input.mp3 --debug                        # enable debug logging
-  python -m transcribe_audio.cli.transcribe_cli input.mp3 --log-dir ./my_logs           # custom log directory
+  python -m src.transcribe_audio.cli.transcribe_cli input.m4a
+  python -m src.transcribe_audio.cli.transcribe_cli input.mp3 --out transcript.json
+  python -m src.transcribe_audio.cli.transcribe_cli input.wav --probe-seconds 15
+  python -m src.transcribe_audio.cli.transcribe_cli input.m4a --no-probe                     # skip ffmpeg probe
+  python -m src.transcribe_audio.cli.transcribe_cli input.mp3 --language pt                  # bypass auto, force Portuguese
+  python -m src.transcribe_audio.cli.transcribe_cli input.mp3 --language-routing             # enable keyword-based language routing
+  python -m src.transcribe_audio.cli.transcribe_cli input.mp3 --model gpt-4o-mini-transcribe
+  python -m src.transcribe_audio.cli.transcribe_cli input.mp3 --debug                        # enable debug logging
+  python -m src.transcribe_audio.cli.transcribe_cli input.mp3 --log-dir ./my_logs           # custom log directory
 
 Exit codes:
   0 = success

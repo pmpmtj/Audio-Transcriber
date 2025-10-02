@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock, PropertyMock
 
 import pytest
-from transcribe_audio.core.transcription import (
+from src.transcribe_audio.core.transcription import (
     transcribe_full,
     transcribe_audio
 )
@@ -157,7 +157,7 @@ class TestTranscribeAudio:
         """Test basic transcription with default parameters."""
         # Mock transcribe_full
         mock_result = {"text": "Test transcription"}
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value=mock_result)
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value=mock_result)
         
         result = transcribe_audio(
             audio_path=str(sample_audio_path),
@@ -195,7 +195,7 @@ class TestTranscribeAudio:
     
     def test_all_supported_extensions(self, mocker, temp_dir, mock_openai_client):
         """Test that all supported extensions are accepted."""
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         for ext in ['.mp3', '.m4a', '.wav']:
             audio_file = temp_dir / f"test{ext}"
@@ -211,10 +211,10 @@ class TestTranscribeAudio:
     
     def test_language_routing_enabled(self, mocker, sample_audio_path, mock_openai_client):
         """Test transcription with language routing enabled."""
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         # Mock language detection - need to import from the right place
-        mock_detect = mocker.patch('transcribe_audio.core.language_detection.detect_language_with_probe')
+        mock_detect = mocker.patch('src.transcribe_audio.core.language_detection.detect_language_with_probe')
         mock_detect.return_value = ('pt', True)
         
         result = transcribe_audio(
@@ -229,10 +229,10 @@ class TestTranscribeAudio:
     
     def test_language_routing_disabled(self, mocker, sample_audio_path, mock_openai_client):
         """Test transcription with language routing disabled."""
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         # Mock language detection (should not be called)
-        mock_detect = mocker.patch('transcribe_audio.core.language_detection.detect_language_with_probe')
+        mock_detect = mocker.patch('src.transcribe_audio.core.language_detection.detect_language_with_probe')
         
         result = transcribe_audio(
             audio_path=str(sample_audio_path),
@@ -245,10 +245,10 @@ class TestTranscribeAudio:
     
     def test_forced_language_skips_detection(self, mocker, sample_audio_path, mock_openai_client):
         """Test that forced language skips detection even if routing enabled."""
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         # Mock language detection (should not be called)
-        mock_detect = mocker.patch('transcribe_audio.core.language_detection.detect_language_with_probe')
+        mock_detect = mocker.patch('src.transcribe_audio.core.language_detection.detect_language_with_probe')
         
         result = transcribe_audio(
             audio_path=str(sample_audio_path),
@@ -262,7 +262,7 @@ class TestTranscribeAudio:
     
     def test_metadata_enrichment(self, mocker, sample_audio_path, mock_openai_client):
         """Test that result metadata is properly enriched."""
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         result = transcribe_audio(
             audio_path=str(sample_audio_path),
@@ -294,7 +294,7 @@ class TestTranscribeAudio:
         # Patch the import at the point where it's used
         mocker.patch.dict('sys.modules', {'openai': mock_openai_module})
         
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         result = transcribe_audio(audio_path=str(sample_audio_path))
         
@@ -303,7 +303,7 @@ class TestTranscribeAudio:
     
     def test_uses_config_defaults(self, mocker, sample_audio_path, mock_openai_client):
         """Test that config defaults are used when parameters not specified."""
-        mocker.patch('transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
+        mocker.patch('src.transcribe_audio.core.transcription.transcribe_full', return_value={"text": "Test"})
         
         result = transcribe_audio(
             audio_path=str(sample_audio_path),

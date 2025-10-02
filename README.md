@@ -98,14 +98,14 @@ find /path/to/audio -name "*.mp3" | transcribe-audio --stdin --out-dir /path/to/
 
 **Alternative CLI usage (if not installed):**
 ```bash
-python -m transcribe_audio.cli.transcribe_cli input.m4a
+python -m src.transcribe_audio.cli.transcribe_cli input.m4a
 ```
 
 ### Library Usage
 
 **Basic usage:**
 ```python
-from transcribe_audio import transcribe_audio
+from src.transcribe_audio import transcribe_audio
 
 # Simple transcription
 result = transcribe_audio("audio.mp3")
@@ -114,7 +114,7 @@ print(result['text'])
 
 **Advanced usage with options:**
 ```python
-from transcribe_audio import transcribe_audio
+from src.transcribe_audio import transcribe_audio
 
 result = transcribe_audio(
     audio_path="audio.m4a",
@@ -133,7 +133,7 @@ print(f"FFmpeg probe used: {metadata['ffmpeg_used']}")
 
 **Configuration access:**
 ```python
-from transcribe_audio import TranscriptionConfig
+from src.transcribe_audio import TranscriptionConfig
 
 # Get model settings
 main_model = TranscriptionConfig.get_model('main')
@@ -180,7 +180,7 @@ The package supports keyword-based detection for:
 All configuration is centralized in `transcribe_audio/config/transcription_config.py`:
 
 ```python
-from transcribe_audio import TranscriptionConfig
+from src.transcribe_audio import TranscriptionConfig
 
 # Access models
 main_model = TranscriptionConfig.get_model('main')
@@ -204,7 +204,7 @@ Edit the `LANGUAGE_KEYWORDS` dictionary in `transcription_config.py` to add or m
 
 ```python
 from flask import Flask, request, jsonify
-from transcribe_audio import transcribe_audio
+from src.transcribe_audio import transcribe_audio
 
 app = Flask(__name__)
 
@@ -235,7 +235,7 @@ def transcribe():
 import os
 import json
 from pathlib import Path
-from transcribe_audio import transcribe_audio
+from src.transcribe_audio import transcribe_audio
 
 def batch_transcribe(input_dir, output_dir):
     input_path = Path(input_dir)
@@ -309,7 +309,7 @@ pip install -e .
 pytest
 
 # Test imports
-python -c "from transcribe_audio import transcribe_audio; print('Package OK')"
+python -c "from src.transcribe_audio import transcribe_audio; print('Package OK')"
 
 # Test CLI help
 transcribe-audio --help
@@ -320,7 +320,7 @@ transcribe-audio --help
 **Adding new interfaces:**
 ```python
 # Create your own interface
-from transcribe_audio import transcribe_audio
+from src.transcribe_audio import transcribe_audio
 
 def my_custom_interface(audio_path, **options):
     # Your custom logic here

@@ -7,8 +7,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from transcribe_audio.core.transcription import validate_audio_file
-from transcribe_audio.config import TranscriptionConfig
+from src.transcribe_audio.core.transcription import validate_audio_file
+from src.transcribe_audio.config import TranscriptionConfig
 
 
 class TestValidateAudioFile:

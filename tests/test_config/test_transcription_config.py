@@ -5,7 +5,7 @@ Tests all configuration helper methods and settings validation.
 """
 
 import pytest
-from transcribe_audio.config import TranscriptionConfig
+from src.transcribe_audio.config import TranscriptionConfig
 
 
 # ============================================================================

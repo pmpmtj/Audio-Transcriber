@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch, call
 
 import pytest
-from transcribe_audio.core.language_detection import (
+from src.transcribe_audio.core.language_detection import (
     slice_with_ffmpeg,
     detect_language_with_probe
 )
@@ -104,8 +104,8 @@ class TestDetectLanguageWithProbe:
         probe_path = Path('/tmp/probe.wav')
         
         # Mock ffmpeg availability and slice creation
-        mocker.patch('transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
-        mocker.patch('transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=probe_path)
+        mocker.patch('src.transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
+        mocker.patch('src.transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=probe_path)
         
         # Mock Path.exists to return True for the probe path
         original_exists = Path.exists
@@ -140,7 +140,7 @@ class TestDetectLanguageWithProbe:
     def test_detection_without_ffmpeg(self, mocker, sample_audio_path, mock_openai_client):
         """Test language detection when ffmpeg is not available."""
         # Mock ffmpeg as not available
-        mocker.patch('transcribe_audio.core.language_detection.have_ffmpeg', return_value=False)
+        mocker.patch('src.transcribe_audio.core.language_detection.have_ffmpeg', return_value=False)
         
         # Mock file open and API response
         mocker.patch('builtins.open', mocker.mock_open(read_data=b'fake audio'))
@@ -222,9 +222,9 @@ class TestDetectLanguageWithProbe:
     def test_ffmpeg_failure_falls_back_to_full_file(self, mocker, sample_audio_path, mock_openai_client):
         """Test that ffmpeg failure results in fallback to full file."""
         # Mock ffmpeg available but slice creation fails
-        mocker.patch('transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
+        mocker.patch('src.transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
         failed_path = Path("/__ffmpeg_failed__.wav")
-        mocker.patch('transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=failed_path)
+        mocker.patch('src.transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=failed_path)
         
         # Mock Path.exists to return False for failed path
         original_exists = Path.exists
@@ -264,8 +264,8 @@ class TestDetectLanguageWithProbe:
         probe_path.touch()  # Create the file
         
         # Mock ffmpeg and probe creation to return our actual temp file
-        mocker.patch('transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
-        mocker.patch('transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=probe_path)
+        mocker.patch('src.transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
+        mocker.patch('src.transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=probe_path)
         
         # Mock file operations
         mocker.patch('builtins.open', mocker.mock_open(read_data=b'fake audio'))
@@ -295,8 +295,8 @@ class TestDetectLanguageWithProbe:
         probe_path.touch()  # Create the file
         
         # Mock ffmpeg and probe creation to return our actual temp file
-        mocker.patch('transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
-        mocker.patch('transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=probe_path)
+        mocker.patch('src.transcribe_audio.core.language_detection.have_ffmpeg', return_value=True)
+        mocker.patch('src.transcribe_audio.core.language_detection.slice_with_ffmpeg', return_value=probe_path)
         
         # Mock file operations
         mocker.patch('builtins.open', mocker.mock_open(read_data=b'fake audio'))

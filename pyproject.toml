@@ -45,7 +45,7 @@ env = [
 
 # CLI entry points - allows users to run "transcribe-audio" command after install
 [project.scripts]
-transcribe-audio = "transcribe_audio.cli.transcribe_cli:main"
+transcribe-audio = "src.transcribe_audio.cli.transcribe_cli:main"
 
 # Project URLs
 [project.urls]
@@ -56,11 +56,14 @@ Issues = "https://github.com/yourusername/audio-transcriber/issues"
 
 # Hatchling build configuration
 [tool.hatch.build.targets.wheel]
-packages = ["transcribe_audio"]
+packages = ["src.transcribe_audio"]
+
+[tool.hatch.build.sources]
+"src" = ""
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/transcribe_audio",
+    "/src",
     "/tests",
     "/examples",
     "/README.md",
